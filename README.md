@@ -49,6 +49,16 @@ Configure the `pebble` alias for the script:
 alias pebble="$(pwd)/pebble-wrapper.sh"
 ```
 
+`cd` to your project folder:
+```shell
+cd some-project
+```
+
+Invoke the script 
+```shell
+pebble -h
+```
+NOTE: The first run will take a while as it needs to downlaod the container image
 
 ## Behaviour
 
