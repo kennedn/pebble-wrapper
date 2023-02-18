@@ -58,7 +58,7 @@ Invoke the script
 ```shell
 pebble -h
 ```
-NOTE: The first run will take a while as it needs to downlaod the container image
+NOTE: The first run will take a while as it needs to download the container image
 
 ## Behaviour
 
