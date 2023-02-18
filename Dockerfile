@@ -2,7 +2,7 @@ FROM debian:stable
 
 # update system and get base packages
 RUN apt-get update && \
-    apt-get install -y curl gcc git make python2.7 python2.7-dev python-dev python3-dev  python3-pip python python-virtualenv python3-virtualenv libfreetype6-dev bash-completion libsdl1.2debian \
+    apt-get install -y firefox-esr curl gcc git make python2.7 python2.7-dev python-dev python3-dev  python3-pip python python3-virtualenv libfreetype6-dev bash-completion libsdl1.2debian \
                        libfdt1 libpixman-1-0 libglib2.0-dev gawk && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -26,11 +26,12 @@ RUN curl -sSL https://developer.rebble.io/s3.amazonaws.com/assets.getpebble.com/
 # prepare python environment 
 WORKDIR /opt/${PEBBLE_TOOL_VERSION}
 RUN /bin/bash -c " \
-        virtualenv .env && \
+        virtualenv --python=/usr/bin/python2.7 .env && \
         source .env/bin/activate && \
         pip install -r requirements.txt && \
         deactivate " && \
     rm -r /root/.cache/
+
 
 # disable analytics & add pebble user - necesary for Arch linux hosts
 RUN adduser --disabled-password --gecos "" --ingroup users pebble && \
