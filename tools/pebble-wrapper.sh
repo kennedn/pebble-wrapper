@@ -28,7 +28,7 @@ fi
 
 # If no running containers have the current directory mounted, create one
 if [ -z "${image_id}" ]; then
-  image_id=$("${CONTAINER_RUNTIME}" run ${EXTRA_RUN_ARGS} -d -e DISPLAY=$DISPLAY -v /tmp/.X11-unix/:/tmp/.x11-unix  -v ~/.Xauthority:/home/pebble/.Xauthority --entrypoint /bin/bash --net=host --entrypoint="sleep" -v .:/pebble ${IMAGE} infinity)
+  image_id=$("${CONTAINER_RUNTIME}" run ${EXTRA_RUN_ARGS} -d -e DISPLAY=$DISPLAY -v /tmp/.X11-unix/:/tmp/.x11-unix  -v ~/.Xauthority:/home/pebble/.Xauthority --net=host --entrypoint="sleep" -v .:/pebble ${IMAGE} infinity)
 fi
 # Pass all args to the pebble tool in the container that has the current directory mounted
 "${CONTAINER_RUNTIME}" exec -it -w="/pebble" ${image_id} pebble $@

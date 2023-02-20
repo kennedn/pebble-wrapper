@@ -1,0 +1,17 @@
+11c11
+< 
+---
+> import tempfile
+16d15
+< 
+20d18
+< 
+24,25c22,26
+<         webbrowser.open_new(url)
+<         self.serve_page(port, callback)
+---
+>         with tempfile.NamedTemporaryFile(suffix = '.html') as tmp:
+>           tmp.write('<meta http-equiv="refresh" content="0;url={}"/>'.format(url))
+>           tmp.flush()
+>           webbrowser.open(tmp.name)
+>           self.serve_page(port, callback)

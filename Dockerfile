@@ -2,36 +2,35 @@ FROM debian:stable
 
 # update system and get base packages
 RUN apt-get update && \
-    apt-get install -y firefox-esr curl gcc git make python2.7 python2.7-dev python-dev python3-dev  python3-pip python python3-virtualenv libfreetype6-dev bash-completion libsdl1.2debian \
-                       libfdt1 libpixman-1-0 libglib2.0-dev gawk && \
+    apt-get install -y firefox-esr curl gcc make python python2.7-dev virtualenv gcc-arm-none-eabi libsdl1.2debian libfdt1 libpixman-1-0 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-#manually install latest gcc-arm
-RUN curl -sSL https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2 \
-   | tar -C /opt/ -xj
-
-#hacky workaround to make rebbleos makefile happy
-RUN ln -s /opt/gcc-arm-none-eabi-9-2019-q4-major/bin/* /usr/bin/
 
 # set the version of the pebble tool
-ENV PEBBLE_TOOL_VERSION pebble-sdk-4.5-linux64
+ENV PEBBLE_TOOL_VERSION pebble-sdk-4.6-rc2-linux64
 # set the version of pre installed
 ENV PEBBLE_SDK_VERSION 4.3
 
 # get pebble tool
-RUN curl -sSL https://developer.rebble.io/s3.amazonaws.com/assets.getpebble.com/pebble-tool/${PEBBLE_TOOL_VERSION}.tar.bz2 \
-        | tar -C /opt/ -xj
+RUN curl -sSL https://rebble-sdk.s3-us-west-2.amazonaws.com/${PEBBLE_TOOL_VERSION}.tar.bz2 | tar -C /opt/ -xj
 
 # prepare python environment 
 WORKDIR /opt/${PEBBLE_TOOL_VERSION}
+
+# Makes the emu-app-config implementation pass a file instead of an argument to the browser. 
+# This fixes an issue where a webpage over 128kb will fail to launch due to the MAX_ARG_STRLEN limit present in most linux kernels
+COPY large_app_config.patch .
+
 RUN /bin/bash -c " \
+        patch pebble-tool/pebble_tool/util/browser.py large_app_config.patch && \
         virtualenv --python=/usr/bin/python2.7 .env && \
         source .env/bin/activate && \
+        curl -sSL https://bootstrap.pypa.io/pip/2.7/get-pip.py | python && \
         pip install -r requirements.txt && \
+        pip install certifi && \
         deactivate " && \
     rm -r /root/.cache/
-
 
 # disable analytics & add pebble user - necesary for Arch linux hosts
 RUN adduser --disabled-password --gecos "" --ingroup users pebble && \
@@ -53,18 +52,14 @@ RUN mkdir -p $NVM_DIR && \
     nvm install $NODE_VERSION
 
 # set PATH
-ENV PATH /opt/gcc-arm-none-eabi-9-2019-q4-major/bin/:${NVM_DIR}/versions/node/v${NODE_VERSION}/bin:/opt/${PEBBLE_TOOL_VERSION}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
-# check path
-RUN /bin/bash -c "arm-none-eabi-gcc -v"
+ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin:/opt/${PEBBLE_TOOL_VERSION}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # install sdk
-RUN yes | pebble sdk install https://github.com/aveao/PebbleArchive/raw/master/SDKCores/sdk-core-${PEBBLE_SDK_VERSION}.tar.bz2 && \
-    pebble sdk activate ${PEBBLE_SDK_VERSION}
+RUN yes | pebble sdk install latest
 
 # set mount path
 VOLUME /pebble/
 
 #run command
 WORKDIR /pebble/
-CMD /bin/bash
+ENTRYPOINT /opt/${PEBBLE_SDK_VERSION}/bin/pebble
