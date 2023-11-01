@@ -13,6 +13,13 @@ The pebble-wrapper side steps this issue by loosely wrapping `pebble` commands i
 - Container runtime (docker/podman)
 - jq (`sudo apt install jq`)
 
+### Example pre-requisites setup on Ubuntu 22.04
+
+```shell
+sudo apt update
+sudo apt install podman jq
+```
+
 ## Installation
 
 Download the contents of [tools/pebble-wrapper.sh](https://raw.githubusercontent.com/kennedn/pebble-wrapper/master/tools/pebble-wrapper.sh) from this repository:
