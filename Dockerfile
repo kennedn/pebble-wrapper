@@ -1,8 +1,8 @@
-FROM debian:stable
+FROM debian:bullseye
 
 # update system and get base packages
 RUN apt-get update && \
-    apt-get install -y firefox-esr curl gcc make python python2.7-dev virtualenv gcc-arm-none-eabi libsdl1.2debian libfdt1 libpixman-1-0 && \
+    apt-get install -y firefox-esr curl gcc git make python python2.7-dev virtualenv libfreetype6-dev libsdl1.2debian libfdt1 libpixman-1-0 libglib2.0-dev gcc-arm-none-eabi && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
